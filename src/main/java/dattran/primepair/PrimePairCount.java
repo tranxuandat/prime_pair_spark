@@ -17,7 +17,7 @@ import scala.Tuple2;
 public class PrimePairCount {
 
 	@SuppressWarnings("serial")
-	private static final FlatMapFunction<String, MyPair> WORDS_EXTRACTOR = new FlatMapFunction<String, MyPair>() {
+	private static final FlatMapFunction<String, MyPair> PAIR_EXTRACTOR = new FlatMapFunction<String, MyPair>() {
 		@Override
 		public Iterable<MyPair> call(String s) throws Exception {
 			String[] strList = s.split(" ");
@@ -39,7 +39,7 @@ public class PrimePairCount {
 	};
 
 	@SuppressWarnings("serial")
-	private static final PairFunction<MyPair, MyPair, Integer> WORDS_MAPPER = new PairFunction<MyPair, MyPair, Integer>() {
+	private static final PairFunction<MyPair, MyPair, Integer> PAIR_MAPPER = new PairFunction<MyPair, MyPair, Integer>() {
 		@Override
 		public Tuple2<MyPair, Integer> call(MyPair s) throws Exception {
 			return new Tuple2<MyPair, Integer>(s, 1);
@@ -47,7 +47,7 @@ public class PrimePairCount {
 	};
 
 	@SuppressWarnings("serial")
-	private static final Function2<Integer, Integer, Integer> WORDS_REDUCER = new Function2<Integer, Integer, Integer>() {
+	private static final Function2<Integer, Integer, Integer> PAIR_REDUCER = new Function2<Integer, Integer, Integer>() {
 		@Override
 		public Integer call(Integer a, Integer b) throws Exception {
 			return a + b;
@@ -66,9 +66,9 @@ public class PrimePairCount {
 		JavaSparkContext context = new JavaSparkContext(conf);
 
 		JavaRDD<String> file = context.textFile(args[0]);
-		JavaRDD<MyPair> words = file.flatMap(WORDS_EXTRACTOR);
-		JavaPairRDD<MyPair, Integer> pairs = words.mapToPair(WORDS_MAPPER);
-		JavaPairRDD<MyPair, Integer> counter = pairs.reduceByKey(WORDS_REDUCER);
+		JavaRDD<MyPair> numbers = file.flatMap(PAIR_EXTRACTOR);
+		JavaPairRDD<MyPair, Integer> pairs = numbers.mapToPair(PAIR_MAPPER);
+		JavaPairRDD<MyPair, Integer> counter = pairs.reduceByKey(PAIR_REDUCER);
 		try {
 		    File fileOutput = new File(args[1]);
 		    FileUtils.deleteDirectory(fileOutput);
